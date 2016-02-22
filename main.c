@@ -58,7 +58,7 @@ void TimerA0Interrupt(void) {
 }
 
 void TimerA1Interrupt(void) {
-	unsigned short intv=TA0IV; //IV=interrupt vector
+	unsigned short intv=TA1IV; //IV=interrupt vector
 	if(enablePing){
 		if(intv==0x04){// set ping on
 			P4OUT&=~BIT4; //interface transistor set to low => invert with pull-up give hi
