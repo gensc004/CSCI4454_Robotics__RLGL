@@ -56,6 +56,8 @@ extern unsigned long __STACK_END;
 
 /* To be added by user */
 extern void TimerA0Interrupt(void);
+extern void TimerA1Interrupt(void);
+extern void PortFourInterrupt(void);
 
 
 /* Interrupt vector table.  Note that the proper constructs must be placed on this to  */
@@ -93,7 +95,7 @@ void (* const interruptVectors[])(void) =
     defaultISR,                             /* TA0_0 ISR                 */
 	TimerA0Interrupt,                             /* TA0_N ISR                 */
     defaultISR,                             /* TA1_0 ISR                 */
-    defaultISR,                             /* TA1_N ISR                 */
+	TimerA1Interrupt,                             /* TA1_N ISR                 */
     defaultISR,                             /* TA2_0 ISR                 */
     defaultISR,                             /* TA2_N ISR                 */
     defaultISR,                             /* TA3_0 ISR                 */
@@ -120,7 +122,7 @@ void (* const interruptVectors[])(void) =
     defaultISR,                             /* PORT1 ISR                 */
     defaultISR,                             /* PORT2 ISR                 */
     defaultISR,                             /* PORT3 ISR                 */
-    defaultISR,                             /* PORT4 ISR                 */
+	PortFourInterrupt,                             /* PORT4 ISR                 */
     defaultISR,                             /* PORT5 ISR                 */
     defaultISR,                             /* PORT6 ISR                 */
     defaultISR,                             /* Reserved 41               */
