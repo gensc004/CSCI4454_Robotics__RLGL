@@ -61,9 +61,9 @@ void TimerA1Interrupt(void) {
 	unsigned short intv=TA1IV; //IV=interrupt vector
 	if(enablePing){
 		if(intv==0x04){// set ping on
-			P4OUT&=~BIT4; //interface transistor set to low => invert with pull-up give hi
+			P4OUT&=~BIT2; //interface transistor set to low => invert with pull-up give hi
 		}else if (intv==0x06){ //turn ping back off
-			P4OUT|=BIT4; //interface transistor set to hi
+			P4OUT|=BIT2; //interface transistor set to hi
 		}else if (intv==0x08){ //enable
 			P4IFG&=~BIT4; //clear any pending P4 interpt
 			P4IE|=BIT4; //actually turning interrupt on
@@ -78,7 +78,7 @@ void TimerA1Interrupt(void) {
 }
 
 void PortFourInterrupt(void) {
-	unsigned short iflag=P1IV; //IV=interrupt vector
+	unsigned short iflag=P4IV; //IV=interrupt vector
 	if(iflag == 0x0A){//P4.4 trigger
 		TA1CCTL1=0xA910; //ground out to trigger capture event
 	}
