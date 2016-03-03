@@ -1,7 +1,7 @@
 //*****************************************************************************
 //
-// MSP432 main.c template - Empty main
-//
+// Red Light Green Light
+// Sean Stockholm, Henry Megarry, Thomas Harren
 //****************************************************************************
 
 #include "msp.h"
