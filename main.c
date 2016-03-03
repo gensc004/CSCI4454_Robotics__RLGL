@@ -11,12 +11,13 @@
 unsigned short sonarTime=0;
 unsigned char enablePing=1;
 unsigned char lost=0;
-unsigned char redLight =0;
+unsigned char winner=0;
+unsigned char redLight=0;
 unsigned int r = 0;
 
 void redLightGreenLight(void){
 	P1OUT^=BIT7;
-	//redLight = ~redLight;
+	redLight = ~redLight;
 }
 
 
@@ -29,6 +30,7 @@ void setData(void){
 		if(P1IN & BIT6){
 			data=0xA5; //high collector pin (blocked)
 		}else{
+			winner=1; //you win!!!!!!
 			data=0xC3; //1100 0011
 		}
 	}
@@ -83,19 +85,24 @@ void TimerA1Interrupt(void) {
 			P4IE|=BIT4; //actually turning interrupt on
 			TA1CCTL1=0xB910; //pulls signal high, now we wait for ping to return
 		}else if (intv==0x02){
-			sonarTime=TA1CCR1; //read val of caputre register
-			P4IE&=~BIT4; //turning interrupt off
-			enablePing=0;
+			if(!winner){
+				//see if target moved
+				if(redLight){
+					if(TA1CCR1 < (sonarTime - 50)){
+						lost = 1;
+					}
+				}
+				//pull a new rand to see if light color changes
+				r = rand() % 10;
+				if(r < 3){
+					redLightGreenLight();
+				}
+				//write down the target's location for reference:
+				sonarTime=TA1CCR1; //read val of caputre register
+				P4IE&=~BIT4; //turning interrupt off
+				enablePing=0;
+			}
 		}
-	}
-/*	if(redLight){
-		if(TA1CCR1 < time){
-			lost = 1;
-		}
-	}*/
-	r = rand() % 1000;
-	if(r < 5){
-		redLightGreenLight();
 	}
 
 }
@@ -214,7 +221,10 @@ void main(void)
 	NVIC_EnableIRQ(TA0_N_IRQn);
 	NVIC_EnableIRQ(TA1_N_IRQn);
 	NVIC_EnableIRQ(PORT4_IRQn);
+	//init random
 	srand(time(NULL));
+	//init light to green light on
+	P1OUT|=BIT7;
 	
 	while(1){}
 }
