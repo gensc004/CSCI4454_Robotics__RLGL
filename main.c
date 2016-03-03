@@ -1,22 +1,36 @@
 //*****************************************************************************
-//
 // Red Light Green Light
 // Sean Stockholm, Henry Megarry, Thomas Harren
 //****************************************************************************
 
 #include "msp.h"
+#include <time.h>
+#include <stdlib.h>
 
-unsigned short time=0;
+
+unsigned short sonarTime=0;
 unsigned char enablePing=1;
+unsigned char lost=0;
+unsigned char redLight =0;
+unsigned int r = 0;
+
+void redLightGreenLight(void){
+	P1OUT^=BIT7;
+	//redLight = ~redLight;
+}
 
 
 void setData(void){
 	unsigned char data=0xA5;//1010 0101 first 4 for second 1, last 4 is pattern fo seckond
 	static unsigned char activeBit=7;
-	if(P1IN & BIT6){
-		data=0xA5; //high collector pin (blocked)
+	if(lost){
+		data=0xFF;
 	}else{
-		data=0xC3; //1100 0011
+		if(P1IN & BIT6){
+			data=0xA5; //high collector pin (blocked)
+		}else{
+			data=0xC3; //1100 0011
+		}
 	}
 	if(data & (1<<activeBit)){
 		//if bit 7 of data is high, return true.
@@ -69,10 +83,19 @@ void TimerA1Interrupt(void) {
 			P4IE|=BIT4; //actually turning interrupt on
 			TA1CCTL1=0xB910; //pulls signal high, now we wait for ping to return
 		}else if (intv==0x02){
-			time=TA1CCR1; //read val of caputre register
+			sonarTime=TA1CCR1; //read val of caputre register
 			P4IE&=~BIT4; //turning interrupt off
 			enablePing=0;
 		}
+	}
+/*	if(redLight){
+		if(TA1CCR1 < time){
+			lost = 1;
+		}
+	}*/
+	r = rand() % 1000;
+	if(r < 5){
+		redLightGreenLight();
 	}
 
 }
@@ -124,15 +147,17 @@ void selectPortFunction(int port, int line, int sel10, int sel1){
 }
 
 void initLines(void){
+	selectPortFunction(1,6,0,0);
+	selectPortFunction(1,7,0,0);
 	selectPortFunction(2,3,0,0);
 	selectPortFunction(2,4,0,0);
-	selectPortFunction(1,6,0,0);
 	selectPortFunction(4,2,0,0);
 	selectPortFunction(4,4,0,0);
-	P2DIR|=BIT3|BIT4;  //output (to timer(L8 or L9) and data on transistor(near L1)
 	P1DIR&=~BIT6; //input (to interrupt)
-	P4DIR|=BIT2;  //in
-	P4DIR&=~BIT4; //out
+	P1DIR|=BIT7; //OUT
+	P2DIR|=BIT3|BIT4;  //output (to timer(L8 or L9) and data on transistor(near L1)
+	P4DIR|=BIT2;  //OUT
+	P4DIR&=~BIT4; //IN
 	P4IES|=BIT4; //Trigger P4 interupt on falling edge
 }
 
@@ -189,6 +214,7 @@ void main(void)
 	NVIC_EnableIRQ(TA0_N_IRQn);
 	NVIC_EnableIRQ(TA1_N_IRQn);
 	NVIC_EnableIRQ(PORT4_IRQn);
+	srand(time(NULL));
 	
 	while(1){}
 }
