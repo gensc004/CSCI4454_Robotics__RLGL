@@ -169,10 +169,10 @@ void initLines(void){
 }
 
 void setClockFrequency(void){
-	CSKEY=0x695A;       //unlock
-	CSCTL1=0x00000223;  //run at 128, enable stuff for clock
-	CSCLKEN=0x0000800F;
-	CSKEY=0xA596;       //lock
+	CS->KEY=0x695A;       //unlock
+	CS->CTL1=0x00000223;  //run at 128, enable stuff for clock
+	CS->CLKEN=0x0000800F;
+	CS->KEY=0xA596;       //lock
 }
 
 void configureTimer(void){
