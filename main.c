@@ -15,6 +15,7 @@ unsigned char winner=0;
 unsigned char redLight=0;
 unsigned int r = 0;
 
+// Changes the light by xoring P1.7
 void redLightGreenLight(void){
 	P1OUT^=BIT7;
 	redLight = ~redLight;
