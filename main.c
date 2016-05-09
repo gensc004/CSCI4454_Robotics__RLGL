@@ -20,7 +20,9 @@ void redLightGreenLight(void){
 	redLight = ~redLight;
 }
 
-
+// setData is called every ten milliseconds.
+// If the game has been lost then data is set to 0xFF and the lights will be on
+// If we have not lost the game and P1IN is high (BIT6 is 1) then we win and chaange the lights to blink in th pattern 1100 0011
 void setData(void){
 	unsigned char data=0xA5;//1010 0101 first 4 for second 1, last 4 is pattern fo seckond
 	static unsigned char activeBit=7;
@@ -50,7 +52,7 @@ void setData(void){
 	}
 }
 
-
+// Controls when setData is run and when the shift register will push a data byte from P2.4 onto the shift register 
 void TimerA0Interrupt(void) {
 	static unsigned short counter=0;
 	unsigned short intv=TA0IV; //IV=interrupt vector
@@ -73,6 +75,7 @@ void TimerA0Interrupt(void) {
 	}
 }
 
+// This controls the sonar.
 void TimerA1Interrupt(void) {
 	unsigned short intv=TA1IV; //IV=interrupt vector
 	if(enablePing){
@@ -80,7 +83,7 @@ void TimerA1Interrupt(void) {
 			P4OUT&=~BIT2; //interface transistor set to low => invert with pull-up give hi
 		}else if (intv==0x06){ //turn ping back off
 			P4OUT|=BIT2; //interface transistor set to hi
-		}else if (intv==0x08){ //enable
+		}else if (intv==0x08){ //Start timer
 			P4IFG&=~BIT4; //clear any pending P4 interpt
 			P4IE|=BIT4; //actually turning interrupt on
 			TA1CCTL1=0xB910; //pulls signal high, now we wait for ping to return
@@ -107,9 +110,10 @@ void TimerA1Interrupt(void) {
 
 }
 
+//This interrupt triggers the capture event by ending the timer
 void PortFourInterrupt(void) {
 	unsigned short iflag=P4IV; //IV=interrupt vector
-	if(iflag == 0x0A){//P4.4 trigger
+	if(iflag == 0x0A){//P4.4 trigger (when sonar returns)
 		TA1CCTL1=0xA910; //ground out to trigger capture event
 	}
 }
